@@ -23,4 +23,9 @@ public class Edge implements Serializable{
         this.Y2 = Y2;
         this.color = color;
     }
+    
+    @Override
+    public String toString(){
+        return this.X1 + "," + this.X2 + "," + this.Y1 + "," + this.Y2 + "," + color;
+    }
 }

@@ -104,7 +104,7 @@ public class JSF32KochFractalConsole {
                     menu();
                     break;
                 case 13:
-                    km.writeEdge(new Edge(1.0d, 1.0d, 0.5d, 0.5d, Color.BLUE.toString()));
+                    km.writeEdgeText(new Edge(1.0, 1.0, 0.5, 1.0, "#FFFFFF"));
                     menu();
                 case 14:
                     km.readEdges();
