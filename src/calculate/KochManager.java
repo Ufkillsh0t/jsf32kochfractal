@@ -196,13 +196,15 @@ public class KochManager {
         }
     }
 
-    public synchronized List<Edge> readEdgesTextBuffered() {
+    public synchronized List<Edge> readEdgesText() {
         try {
+            System.out.println("\n");
             FileReader fr = new FileReader("edges.txt"); //We maken gebruik van de filereader om het tekstbestand uit te lezen.
             Scanner inputScanner = new Scanner(fr);
             List<String> lines = new ArrayList<>(); //Een lijst met het aantal lijnen uit het tekstbestand.
             String readedLine; //De huidige lijn.
-            while ((readedLine = inputScanner.nextLine()) != null) { //Leest het bestand uit tot dat er geen lijnen meer zijn.
+            while (inputScanner.hasNextLine()) { //Leest het bestand uit tot dat er geen lijnen meer zijn.
+                readedLine = inputScanner.nextLine();
                 System.out.println(readedLine); //Print de huidige lijn.
                 lines.add(readedLine); //Voegt de huidige lijn toe aan de lijst met lijnen.
             }
@@ -211,10 +213,10 @@ public class KochManager {
             for (int i = lines.size(); i > 0; i--) { //Leest de lijst met de lijnen van het tekstbestand uit.
                 String t = lines.get(i - 1); //Pakt de huidige lijn uit het tekstbestand.
                 String[] velden = t.split(",");
-                int X1 = Integer.parseInt(velden[0]);
-                int X2 = Integer.parseInt(velden[1]);
-                int Y1 = Integer.parseInt(velden[2]);
-                int Y2 = Integer.parseInt(velden[3]);
+                float X1 = Float.parseFloat(velden[0]);
+                float X2 = Float.parseFloat(velden[1]);
+                float Y1 = Float.parseFloat(velden[2]);
+                float Y2 = Float.parseFloat(velden[3]);
                 String color = velden[4];
                 readedEdges.add(new Edge(X1, Y1, X2, Y2, color));
             }
@@ -229,7 +231,7 @@ public class KochManager {
         return null;
     }
 
-    public synchronized List<Edge> readEdgesText() {
+    public synchronized List<Edge> readEdgesTextBuffered() {
         try {
             FileReader fr = new FileReader("edges.txt"); //We maken gebruik van de filereader om het tekstbestand uit te lezen.
             BufferedReader br = new BufferedReader(fr); //We maken een bufferedReader aan die het bestand uit de filereader pakt.
@@ -245,10 +247,10 @@ public class KochManager {
             for (int i = lines.size(); i > 0; i--) { //Leest de lijst met de lijnen van het tekstbestand uit.
                 String t = lines.get(i - 1); //Pakt de huidige lijn uit het tekstbestand.
                 String[] velden = t.split(",");
-                int X1 = Integer.parseInt(velden[0]);
-                int X2 = Integer.parseInt(velden[1]);
-                int Y1 = Integer.parseInt(velden[2]);
-                int Y2 = Integer.parseInt(velden[3]);
+                float X1 = Float.parseFloat(velden[0]);
+                float X2 = Float.parseFloat(velden[1]);
+                float Y1 = Float.parseFloat(velden[2]);
+                float Y2 = Float.parseFloat(velden[3]);
                 String color = velden[4];
                 readedEdges.add(new Edge(X1, Y1, X2, Y2, color));
             }
@@ -271,7 +273,7 @@ public class KochManager {
         edges.add(e);
         if (edges.size() >= (int) (3 * Math.pow(4, currentLevel - 1))) {
             System.out.println("Done generating");
-            writeEdge(edges);
+            writeEdgeText(edges);
         }
     }
 

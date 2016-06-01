@@ -106,9 +106,23 @@ public class JSF32KochFractalConsole {
                 case 13:
                     km.writeEdgeText(new Edge(1.0, 1.0, 0.5, 1.0, "#FFFFFF"));
                     menu();
-                case 14:
+                    break;
+                case 20:
+                    km.readEdgesText();
+                    menu();
+                    break;
+                case 21:
+                    km.readEdgesTextBuffered();
+                    menu();
+                    break;
+                case 22:
                     km.readEdges();
                     menu();
+                    break;
+                case 23:
+                    km.readEdgesBuffered();
+                    menu();
+                    break;
                 default:
                     System.out.println("U heeft een ongeldig getal ingevult");
                     menu();
