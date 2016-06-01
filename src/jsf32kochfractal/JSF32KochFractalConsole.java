@@ -5,8 +5,10 @@
  */
 package jsf32kochfractal;
 
+import calculate.Edge;
 import calculate.KochManager;
 import java.util.Scanner;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -101,6 +103,12 @@ public class JSF32KochFractalConsole {
                     km.changeLevel(input);
                     menu();
                     break;
+                case 13:
+                    km.writeEdge(new Edge(1.0d, 1.0d, 0.5d, 0.5d, Color.BLUE.toString()));
+                    menu();
+                case 14:
+                    km.readEdges();
+                    menu();
                 default:
                     System.out.println("U heeft een ongeldig getal ingevult");
                     menu();

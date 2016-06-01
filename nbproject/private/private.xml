@@ -3,13 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/calculate/Edge.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/calculate/KochTask.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/jsf32kochfractal/JSF32KochFractalConsole.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/timeutil/TimeStamp.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/calculate/KochFractal.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/calculate/KochManager.java</file>
-            <file>file:/D:/School/S3/PTS3/jsf32kochfractal/src/calculate/EdgeSide.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/calculate/KochManager.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/calculate/KochFractal.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/calculate/Edge.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/jsf32kochfractal/JSF32KochFractalConsole.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/calculate/KochCallable.java</file>
+            <file>file:/F:/School/S3/JSF32/Week%202/jsf32kochfractal/src/calculate/KochTask.java</file>
         </group>
     </open-files>
 </project-private>

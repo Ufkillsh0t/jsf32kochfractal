@@ -9,43 +9,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
-import javafx.concurrent.Task;
+import timeutil.TimeStamp;
 
 /**
  *
  * @author tim
  */
-public class KochTask extends Task implements Observer{
+public class KochCallable implements Callable, Observer {
 
     private KochManager km;
     private KochFractal kf;
     private int level;
     private List<Edge> edges;
-    private CyclicBarrier cb;
     private EdgeSide side;
-    private int progress;
-    
-    public KochTask(KochManager km, int level, EdgeSide side){
+
+    public KochCallable(KochManager km, int level, EdgeSide side) {
         this.level = level;
         this.side = side;
         this.km = km;
-        this.cb = cb;
         this.edges = new ArrayList<Edge>();
 
         kf = new KochFractal();
         kf.addObserver(this);
         kf.setLevel(level);
     }
-    
-    public int getLevel(){
-        return level;
-    }
-    
+
     @Override
-    protected Void call() throws Exception {
+    public Object call() throws Exception {
         System.out.println("Called");
-        switch(side){
+        switch (side) {
             case Bottom:
                 kf.generateBottomEdge();
                 break;
@@ -64,8 +58,5 @@ public class KochTask extends Task implements Observer{
         Edge edge = (Edge) arg;
         edges.add(edge);
         km.addEdge(edge);
-        
-        progress++;
-        this.updateProgress(progress, kf.getNrOfEdges() / 3);   
     }
 }
