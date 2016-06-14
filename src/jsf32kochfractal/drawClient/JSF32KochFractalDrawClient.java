@@ -8,6 +8,19 @@ package jsf32kochfractal.drawClient;
 import calculate.Edge;
 import calculate.KochManager;
 import calculate.WriteType;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -64,17 +77,23 @@ public class JSF32KochFractalDrawClient extends Application {
     private Label labelText;
     private Label labelBuffered;
     private Label labelMapped;
+    private Label labelWatch;
     private RadioButton rbText;
     private RadioButton rbBuffered;
     private RadioButton rbMapped;
+    private RadioButton rbWatch;
 
     // Koch panel and its size
     private Canvas kochPanel;
     private final int kpWidth = 500;
     private final int kpHeight = 500;
 
+    private WatchDirRunnable watch;
+    private ExecutorService pool;
+
     //Application directory
-    private static final String USERDIR = System.getProperty("user.dir");
+    private static final String USERDIR = System.getProperty("user.dir") + "\\";
+    private static final String FILEPATH = "D:\\School\\S3\\JSF3\\Week 13\\Bestanden\\";
     private boolean buffered;
     private boolean binairy;
 
@@ -120,26 +139,38 @@ public class JSF32KochFractalDrawClient extends Application {
         labelText = new Label("Text");
         labelBuffered = new Label("Buffered");
         labelMapped = new Label("Mapped");
+        labelWatch = new Label("Watch");
         rbBuffered = new RadioButton();
         rbBuffered.setOnAction((ActionEvent event) -> {
             rbMapped.setSelected(false);
+            rbWatch.setSelected(false);
         });
         rbText = new RadioButton();
         rbText.setOnAction((ActionEvent event) -> {
             rbMapped.setSelected(false);
+            rbWatch.setSelected(false);
         });
         rbMapped = new RadioButton();
         rbMapped.setOnAction((ActionEvent event) -> {
             rbBuffered.setSelected(false);
             rbText.setSelected(false);
+            rbWatch.setSelected(false);
         });
-        
+        rbWatch = new RadioButton();
+        rbWatch.setOnAction((ActionEvent event) -> {
+            rbMapped.setSelected(false);
+            rbBuffered.setSelected(false);
+            rbText.setSelected(false);
+        });
+
         grid.add(labelText, 0, 7);
         grid.add(rbText, 1, 7);
         grid.add(labelBuffered, 0, 8);
         grid.add(rbBuffered, 1, 8);
-        grid.add(labelMapped, 0, 9);        
+        grid.add(labelMapped, 0, 9);
         grid.add(rbMapped, 1, 9);
+        grid.add(labelWatch, 3, 8);
+        grid.add(rbWatch, 4, 8);
 
         // Button to increase level of Koch fractal
         Button buttonIncreaseLevel = new Button();
@@ -197,6 +228,23 @@ public class JSF32KochFractalDrawClient extends Application {
             @Override
             public void handle(MouseEvent event) {
                 kochPanelMouseDragged(event);
+            }
+        });
+
+        pool = Executors.newFixedThreadPool(3);
+        try {
+            File f = new File(FILEPATH);
+            WatchDirRunnable watch = new WatchDirRunnable(f.toPath(), false, this);
+            pool.submit(watch);
+
+        } catch (IOException ex) {
+            System.out.print(ex.toString());
+        }
+
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                pool.shutdownNow();
             }
         });
 
@@ -284,6 +332,18 @@ public class JSF32KochFractalDrawClient extends Application {
         });
     }
 
+    public void requestDrawEdges(List<Edge> edges) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                clearKochPanel();
+                for (Edge e : edges) {
+                    drawEdge(e);
+                }
+            }
+        });
+    }
+
     private void increaseLevelButtonActionPerformed(ActionEvent event) {
         if (currentLevel < 9) {
             // resetZoom();
@@ -298,15 +358,15 @@ public class JSF32KochFractalDrawClient extends Application {
             // resetZoom();
             currentLevel--;
             labelLevel.setText("Level: " + currentLevel);
-            if(this.rbMapped.isSelected()){
+            if (this.rbMapped.isSelected()) {
                 writeType = WriteType.Mapped;
-            }else if(this.rbBuffered.isSelected() && this.rbText.isSelected()){
-                writeType = WriteType.BufferedText;                       
-            }else if(!this.rbBuffered.isSelected() && this.rbText.isSelected()){
+            } else if (this.rbBuffered.isSelected() && this.rbText.isSelected()) {
+                writeType = WriteType.BufferedText;
+            } else if (!this.rbBuffered.isSelected() && this.rbText.isSelected()) {
                 writeType = WriteType.Text;
-            }else if(this.rbBuffered.isSelected() && !this.rbText.isSelected()){
+            } else if (this.rbBuffered.isSelected() && !this.rbText.isSelected()) {
                 writeType = WriteType.BufferedBinairy;
-            }else if(!this.rbBuffered.isSelected() && !this.rbText.isSelected()){
+            } else if (!this.rbBuffered.isSelected() && !this.rbText.isSelected()) {
                 writeType = WriteType.Binairy;
             }
             kochManager.changeLevel(currentLevel, writeType);

@@ -14,11 +14,15 @@ import calculate.WriteType;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -91,7 +95,7 @@ public class KochManagerDrawClient {
                 edges = readEdgesTextBuffered(nxt);
                 break;
             case Mapped:
-                edges = readEdgesMapped(nxt);
+                edges = readEdgesMappedFast(nxt);
                 break;
         }
 
@@ -115,6 +119,33 @@ public class KochManagerDrawClient {
 
                 Edge e = new Edge(X1, Y1, X2, Y2, hue, saturation, brightness);
                 readedEdges.add(e);
+            }
+            return readedEdges;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(KochManagerDrawClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(KochManagerDrawClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return readedEdges;
+    }
+
+    public synchronized List<Edge> readEdgesMappedFast(int lvl) {
+        List<Edge> readedEdges = new ArrayList<>();
+        try {
+            RandomAccessFile file = new RandomAccessFile(new File("mappedEdges.txt"), "r");
+            FileChannel fc = file.getChannel();
+            MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+            //long length = file.length();
+            while (mbb.hasRemaining()) {
+                double X1 = mbb.getDouble();
+                double Y1 = mbb.getDouble();
+                double X2 = mbb.getDouble();
+                double Y2 = mbb.getDouble();
+                double hue = mbb.getDouble();
+                double saturation = mbb.getDouble();
+                double brightness = mbb.getDouble();
+
+                readedEdges.add(new Edge(X1, Y1, X2, Y2, hue, saturation, brightness));
             }
             return readedEdges;
         } catch (FileNotFoundException ex) {

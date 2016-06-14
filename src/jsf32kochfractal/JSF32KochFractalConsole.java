@@ -108,29 +108,36 @@ public class JSF32KochFractalConsole {
                     break;
                 case 13:
                     writeType = WriteType.Mapped;
-                    System.out.println("Set writeType to" + writeType.toString());
+                    km.setOneFile(false);
+                    System.out.println("Set writeType to: " + writeType.toString());
                     menu();
                     break;
                 case 14:
                     writeType = WriteType.Binairy;
-                    System.out.println("Set writeType to" + writeType.toString());
+                    System.out.println("Set writeType to: " + writeType.toString());
                     menu();
                     break;
                 case 15:
                     writeType = WriteType.BufferedBinairy;
-                    System.out.println("Set writeType to" + writeType.toString());
+                    System.out.println("Set writeType to: " + writeType.toString());
                     menu();
                     break;
                 case 16:
                     writeType = WriteType.Text;
-                    System.out.println("Set writeType to" + writeType.toString());
+                    System.out.println("Set writeType to: " + writeType.toString());
                     menu();
                     break;
                 case 17:
                     writeType = WriteType.BufferedText;
-                    System.out.println("Set writeType to" + writeType.toString());
+                    System.out.println("Set writeType to: " + writeType.toString());
                     menu();
                     break;
+                case 18:
+                    writeType = WriteType.Mapped;
+                    km.setOneFile(true);
+                    System.out.println("Set writeType to: " + writeType.toString());
+                    menu();
+                    break;        
                 case 20:
                     km.readEdgesTextBuffered();
                     menu();

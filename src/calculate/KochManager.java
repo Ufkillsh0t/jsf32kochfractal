@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,6 +45,7 @@ public class KochManager {
     public int count;
     private String time;
     private int currentLevel;
+    private boolean oneFile;
     private int fileSize = 10 * 1024 * 1024;
     public TimeStamp tsDe;
     private WriteType writeType;
@@ -51,8 +53,17 @@ public class KochManager {
 
     public KochManager() {
         pool = Executors.newFixedThreadPool(3);
+        oneFile = false;
         edges = new ArrayList<Edge>();
         path = "D:\\School\\S3\\JSF3\\Week 13\\Bestanden\\"; //"/home/jsf3/MountedDrive/";
+    }
+
+    public boolean isOneFile() {
+        return oneFile;
+    }
+
+    public void setOneFile(boolean oneFile) {
+        this.oneFile = oneFile;
     }
 
     public void changeLevel(int nxt, WriteType writeType) {
@@ -62,7 +73,7 @@ public class KochManager {
         this.writeType = writeType;
         edges.clear();
         currentLevel = nxt;
-        
+
         KochCallable kt1 = new KochCallable(this, currentLevel, EdgeSide.Left);
         KochCallable kt2 = new KochCallable(this, currentLevel, EdgeSide.Right);
         KochCallable kt3 = new KochCallable(this, currentLevel, EdgeSide.Bottom);
@@ -103,11 +114,10 @@ public class KochManager {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /*
         ---Schrijft een lijst van edges weg met behulp van object outputstream.
-    */
-
+     */
     public synchronized void writeEdge(List<Edge> edges) {
         try {
             FileOutputStream fos = new FileOutputStream(path + "edges" + currentLevel + ".dat");
@@ -135,11 +145,10 @@ public class KochManager {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ioe);
         }
     }
-    
+
     /*
         ---Schrijft edges weg naar een tekst bestand.
-    */
-
+     */
     public synchronized void writeEdgeText(List<Edge> edges) {
         try {
             FileWriter fw = new FileWriter(path + "edges" + currentLevel + ".txt");
@@ -172,19 +181,30 @@ public class KochManager {
 
     /*
         Schrijft de edges weg naar een memorymapped file.
-    */
-    public synchronized void writeMapped(List<Edge> edges){
-        try{
-            RandomAccessFile memoryMappedFile = new RandomAccessFile(path + "edges" + currentLevel + ".bin", "rw");
-            MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, (7*8)*edges.size());
-            for(Edge e : edges){
+     */
+    public synchronized void writeMapped(List<Edge> edges) {
+        String filePath;
+        try {
+            if (oneFile) {
+                filePath = path + "mappedEdges.bin";
+            } else {
+                filePath = path + "edges" + currentLevel + ".bin";
+            }
+            File f = new File(filePath);
+            if (f.exists()) {
+                f.delete();
+            }
+            
+            RandomAccessFile memoryMappedFile = new RandomAccessFile(filePath, "rw");
+            MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, (7 * 8) * edges.size());
+            for (Edge e : edges) {
                 out.putDouble(e.X1);
                 out.putDouble(e.Y1);
                 out.putDouble(e.X2);
                 out.putDouble(e.Y2);
                 out.putDouble(e.hue);
                 out.putDouble(e.saturation);
-                out.putDouble(e.brightness);                
+                out.putDouble(e.brightness);
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -192,11 +212,10 @@ public class KochManager {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /*
         ---Leest het bestand met edges uit
-    */
-    
+     */
     public synchronized List<Edge> readEdges() {
         List<Edge> readedEdges;
         try {
@@ -320,7 +339,7 @@ public class KochManager {
         edges.add(e);
         if (edges.size() >= (int) (3 * Math.pow(4, currentLevel - 1))) {
             System.out.println("Done generating");
-            switch(writeType){
+            switch (writeType) {
                 case Binairy:
                     writeEdge(edges);
                     break;
