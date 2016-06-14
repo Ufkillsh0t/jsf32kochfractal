@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -41,25 +44,22 @@ public class KochManager {
     public int count;
     private String time;
     private int currentLevel;
+    private int fileSize = 10 * 1024 * 1024;
     public TimeStamp tsDe;
-    private boolean buffered;
-    private boolean binairy;
+    private WriteType writeType;
     private String path;
 
     public KochManager() {
         pool = Executors.newFixedThreadPool(3);
         edges = new ArrayList<Edge>();
-        buffered = true;
-        binairy = true;
-        path = "/home/jsf3/MountedDrive/";
+        path = "D:\\School\\S3\\JSF3\\Week 13\\Bestanden\\"; //"/home/jsf3/MountedDrive/";
     }
 
-    public void changeLevel(int nxt, boolean buffered, boolean binairy) {
+    public void changeLevel(int nxt, WriteType writeType) {
         tsDe = new TimeStamp();
         tsDe.setBegin("Begin Level<" + nxt + ">");
         time = "";
-        this.buffered = buffered;
-        this.binairy = binairy;
+        this.writeType = writeType;
         edges.clear();
         currentLevel = nxt;
         
@@ -103,6 +103,10 @@ public class KochManager {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    /*
+        ---Schrijft een lijst van edges weg met behulp van object outputstream.
+    */
 
     public synchronized void writeEdge(List<Edge> edges) {
         try {
@@ -131,6 +135,10 @@ public class KochManager {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ioe);
         }
     }
+    
+    /*
+        ---Schrijft edges weg naar een tekst bestand.
+    */
 
     public synchronized void writeEdgeText(List<Edge> edges) {
         try {
@@ -162,6 +170,33 @@ public class KochManager {
         }
     }
 
+    /*
+        Schrijft de edges weg naar een memorymapped file.
+    */
+    public synchronized void writeMapped(List<Edge> edges){
+        try{
+            RandomAccessFile memoryMappedFile = new RandomAccessFile(path + "edges" + currentLevel + ".bin", "rw");
+            MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, (7*8)*edges.size());
+            for(Edge e : edges){
+                out.putDouble(e.X1);
+                out.putDouble(e.Y1);
+                out.putDouble(e.X2);
+                out.putDouble(e.Y2);
+                out.putDouble(e.hue);
+                out.putDouble(e.saturation);
+                out.putDouble(e.brightness);                
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /*
+        ---Leest het bestand met edges uit
+    */
+    
     public synchronized List<Edge> readEdges() {
         List<Edge> readedEdges;
         try {
@@ -285,16 +320,22 @@ public class KochManager {
         edges.add(e);
         if (edges.size() >= (int) (3 * Math.pow(4, currentLevel - 1))) {
             System.out.println("Done generating");
-            if (buffered) {
-                if (binairy) {
+            switch(writeType){
+                case Binairy:
+                    writeEdge(edges);
+                    break;
+                case Text:
+                    writeEdgeText(edges);
+                    break;
+                case BufferedBinairy:
                     writeEdgeBuffered(edges);
-                } else {
+                    break;
+                case BufferedText:
                     writeEdgeTextBuffered(edges);
-                }
-            } else if (binairy) {
-                writeEdgeBuffered(edges);
-            } else {
-                writeEdgeText(edges);
+                    break;
+                case Mapped:
+                    writeMapped(edges);
+                    break;
             }
             tsDe.setEnd("Done writing <" + currentLevel + ">");
             System.out.println(tsDe.toString());

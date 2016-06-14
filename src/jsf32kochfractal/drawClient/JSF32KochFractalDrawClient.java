@@ -7,6 +7,7 @@ package jsf32kochfractal.drawClient;
 
 import calculate.Edge;
 import calculate.KochManager;
+import calculate.WriteType;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -49,6 +50,7 @@ public class JSF32KochFractalDrawClient extends Application {
 
     // Current level of Koch fractal
     private int currentLevel = 1;
+    private WriteType writeType;
 
     // Labels for level, nr edges, calculation time, and drawing time
     private Label labelLevel;
@@ -59,14 +61,12 @@ public class JSF32KochFractalDrawClient extends Application {
     private Label labelDraw;
     private Label labelDrawText;
 
-    private Label labelBinair;
     private Label labelText;
     private Label labelBuffered;
-    private Label labelNotBuffered;
-    private RadioButton rbBinair;
+    private Label labelMapped;
     private RadioButton rbText;
     private RadioButton rbBuffered;
-    private RadioButton rbNotBuffered;
+    private RadioButton rbMapped;
 
     // Koch panel and its size
     private Canvas kochPanel;
@@ -119,13 +119,27 @@ public class JSF32KochFractalDrawClient extends Application {
 
         labelText = new Label("Text");
         labelBuffered = new Label("Buffered");
+        labelMapped = new Label("Mapped");
         rbBuffered = new RadioButton();
+        rbBuffered.setOnAction((ActionEvent event) -> {
+            rbMapped.setSelected(false);
+        });
         rbText = new RadioButton();
+        rbText.setOnAction((ActionEvent event) -> {
+            rbMapped.setSelected(false);
+        });
+        rbMapped = new RadioButton();
+        rbMapped.setOnAction((ActionEvent event) -> {
+            rbBuffered.setSelected(false);
+            rbText.setSelected(false);
+        });
         
         grid.add(labelText, 0, 7);
         grid.add(rbText, 1, 7);
         grid.add(labelBuffered, 0, 8);
         grid.add(rbBuffered, 1, 8);
+        grid.add(labelMapped, 0, 9);        
+        grid.add(rbMapped, 1, 9);
 
         // Button to increase level of Koch fractal
         Button buttonIncreaseLevel = new Button();
@@ -188,10 +202,11 @@ public class JSF32KochFractalDrawClient extends Application {
 
         // Create Koch manager and set initial level
         resetZoom();
-        buffered = true;
-        binairy = true;
+        writeType = WriteType.BufferedBinairy;
+        this.rbBuffered.setSelected(true);
+        this.rbText.setSelected(false);
         kochManager = new KochManagerDrawClient(this);
-        kochManager.changeLevel(currentLevel, buffered, binairy);
+        kochManager.changeLevel(currentLevel, writeType);
 
         // Create the scene and add the grid pane
         Group root = new Group();
@@ -270,11 +285,11 @@ public class JSF32KochFractalDrawClient extends Application {
     }
 
     private void increaseLevelButtonActionPerformed(ActionEvent event) {
-        if (currentLevel < 12) {
+        if (currentLevel < 9) {
             // resetZoom();
             currentLevel++;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel, this.rbBuffered.isSelected(), !this.rbText.isSelected());
+            kochManager.changeLevel(currentLevel, writeType);
         }
     }
 
@@ -283,7 +298,18 @@ public class JSF32KochFractalDrawClient extends Application {
             // resetZoom();
             currentLevel--;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel, this.rbBuffered.isSelected(), !this.rbText.isSelected());
+            if(this.rbMapped.isSelected()){
+                writeType = WriteType.Mapped;
+            }else if(this.rbBuffered.isSelected() && this.rbText.isSelected()){
+                writeType = WriteType.BufferedText;                       
+            }else if(!this.rbBuffered.isSelected() && this.rbText.isSelected()){
+                writeType = WriteType.Text;
+            }else if(this.rbBuffered.isSelected() && !this.rbText.isSelected()){
+                writeType = WriteType.BufferedBinairy;
+            }else if(!this.rbBuffered.isSelected() && !this.rbText.isSelected()){
+                writeType = WriteType.Binairy;
+            }
+            kochManager.changeLevel(currentLevel, writeType);
         }
     }
 

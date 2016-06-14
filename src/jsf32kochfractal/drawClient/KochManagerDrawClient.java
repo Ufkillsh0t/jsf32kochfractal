@@ -10,8 +10,10 @@ import calculate.EdgeSide;
 import calculate.KochCallable;
 import calculate.KochManager;
 import calculate.KochTask;
+import calculate.WriteType;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -38,18 +40,15 @@ public class KochManagerDrawClient {
     public int count;
     private String time;
     private int currentLevel;
+    private WriteType writeType;
     public TimeStamp tsDe;
-    private boolean buffered;
-    private boolean binairy;
     private JSF32KochFractalDrawClient application;
     private String path;
 
     public KochManagerDrawClient(JSF32KochFractalDrawClient application) {
         edges = new ArrayList<Edge>();
-        buffered = true;
-        binairy = true;
         this.application = application;
-        path = "/home/jsf3/MountedDrive/";
+        path = "D:\\School\\S3\\JSF3\\Week 13\\Bestanden\\"; //"/home/jsf3/MountedDrive/";
     }
 
     public void drawEdges() {
@@ -70,28 +69,60 @@ public class KochManagerDrawClient {
         application.setTextNrEdges(Integer.toString(edges.size()));
     }
 
-    public void changeLevel(int nxt, boolean buffered, boolean binairy) {
+    public void changeLevel(int nxt, WriteType writeType) {
         tsDe = new TimeStamp();
         tsDe.setBegin("Begin Level<" + nxt + ">");
         time = "";
-        this.buffered = buffered;
-        this.binairy = binairy;
+        this.writeType = writeType;
         edges.clear();
         currentLevel = nxt;
 
-        if (buffered) {
-            if (binairy) {
+        switch (writeType) {
+            case Binairy:
+                edges = readEdges(nxt);
+                break;
+            case Text:
+                edges = readEdgesText(nxt);
+                break;
+            case BufferedBinairy:
                 edges = readEdgesBuffered(nxt);
-            } else {
+                break;
+            case BufferedText:
                 edges = readEdgesTextBuffered(nxt);
-            }
-        } else if (binairy) {
-            edges = readEdges(nxt);
-        } else {
-            edges = readEdgesText(nxt);
+                break;
+            case Mapped:
+                edges = readEdgesMapped(nxt);
+                break;
         }
 
         application.requestDrawEdges();
+    }
+
+    public synchronized List<Edge> readEdgesMapped(int lvl) {
+        List<Edge> readedEdges = new ArrayList<>();
+        try {
+            System.out.println("Reading edges mapped");
+            FileInputStream fis = new FileInputStream(path + "edges" + lvl + ".bin");
+            DataInputStream dis = new DataInputStream(fis);
+            while (dis.available() > 0) {
+                double X1 = dis.readDouble();
+                double Y1 = dis.readDouble();
+                double X2 = dis.readDouble();
+                double Y2 = dis.readDouble();
+                double hue = dis.readDouble();
+                double saturation = dis.readDouble();
+                double brightness = dis.readDouble();
+
+                Edge e = new Edge(X1, Y1, X2, Y2, hue, saturation, brightness);
+                readedEdges.add(e);
+            }
+            return readedEdges;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(KochManagerDrawClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(KochManagerDrawClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return readedEdges;
     }
 
     public synchronized List<Edge> readEdges(int lvl) {
