@@ -20,6 +20,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -58,13 +59,14 @@ public class JSF32KochFractalDrawClient extends Application {
     private Label labelDraw;
     private Label labelDrawText;
 
-    //Progress bars en labels
-    public ProgressBar progressLeft;
-    public ProgressBar progressRight;
-    public ProgressBar progressBottom;
-    public Label labelProgressLeft;
-    public Label labelProgressRight;
-    public Label labelProgressBottom;
+    private Label labelBinair;
+    private Label labelText;
+    private Label labelBuffered;
+    private Label labelNotBuffered;
+    private RadioButton rbBinair;
+    private RadioButton rbText;
+    private RadioButton rbBuffered;
+    private RadioButton rbNotBuffered;
 
     // Koch panel and its size
     private Canvas kochPanel;
@@ -115,23 +117,15 @@ public class JSF32KochFractalDrawClient extends Application {
         labelLevel = new Label("Level: " + currentLevel);
         grid.add(labelLevel, 0, 6);
 
-        // Progress left
-        labelProgressLeft = new Label("Progress Left:");
-        progressLeft = new ProgressBar();
-        grid.add(labelProgressLeft, 0, 7);
-        grid.add(progressLeft, 1, 7);
-
-        // Progress right
-        labelProgressRight = new Label("Progress Right:");
-        progressRight = new ProgressBar();
-        grid.add(labelProgressRight, 0, 8);
-        grid.add(progressRight, 1, 8);
-
-        // Progress bottom
-        labelProgressBottom = new Label("Progress Bottom:");
-        progressBottom = new ProgressBar();
-        grid.add(labelProgressBottom, 0, 9);
-        grid.add(progressBottom, 1, 9);
+        labelText = new Label("Text");
+        labelBuffered = new Label("Buffered");
+        rbBuffered = new RadioButton();
+        rbText = new RadioButton();
+        
+        grid.add(labelText, 0, 7);
+        grid.add(rbText, 1, 7);
+        grid.add(labelBuffered, 0, 8);
+        grid.add(rbBuffered, 1, 8);
 
         // Button to increase level of Koch fractal
         Button buttonIncreaseLevel = new Button();
@@ -221,7 +215,7 @@ public class JSF32KochFractalDrawClient extends Application {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                Edge white = new Edge(e.X1, e.Y1, e.X2, e.Y2, Color.WHITE.toString());
+                Edge white = new Edge(e.X1, e.Y1, e.X2, e.Y2, 0.0, 0.0, 100);
                 drawEdge(white);
             }
         });
@@ -234,8 +228,9 @@ public class JSF32KochFractalDrawClient extends Application {
         // Adjust edge for zoom and drag
         Edge e1 = edgeAfterZoomAndDrag(e);
 
+        //System.out.println(e.color);
         //Kleur
-        Color c = Color.web(e1.color);
+        Color c = Color.hsb(e.hue, e.saturation, e.brightness);
 
         // Set line color
         gc.setStroke(c);
@@ -279,7 +274,7 @@ public class JSF32KochFractalDrawClient extends Application {
             // resetZoom();
             currentLevel++;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel, buffered, binairy);
+            kochManager.changeLevel(currentLevel, this.rbBuffered.isSelected(), !this.rbText.isSelected());
         }
     }
 
@@ -288,7 +283,7 @@ public class JSF32KochFractalDrawClient extends Application {
             // resetZoom();
             currentLevel--;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel, buffered, binairy);
+            kochManager.changeLevel(currentLevel, this.rbBuffered.isSelected(), !this.rbText.isSelected());
         }
     }
 
@@ -341,7 +336,7 @@ public class JSF32KochFractalDrawClient extends Application {
                 e.Y1 * zoom + zoomTranslateY,
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
-                e.color);
+                e.hue, e.saturation, e.brightness);
     }
 
     /**

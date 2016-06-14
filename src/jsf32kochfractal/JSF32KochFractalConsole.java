@@ -59,8 +59,8 @@ public class JSF32KochFractalConsole {
                     break;
                 case 3:
                     System.out.println("Generating level3");
-                    menu();
                     km.changeLevel(input, buffered, binairy);
+                    menu();
                     break;
                 case 4:
                     System.out.println("Generating level4");
@@ -115,6 +115,10 @@ public class JSF32KochFractalConsole {
                 case 14:
                     binairy = !binairy;
                     System.out.println("Set binairy to:" + String.valueOf(binairy));
+                    menu();
+                    break;
+                case 15:
+                    km.readEdgesTextBuffered();
                     menu();
                     break;
                 default:

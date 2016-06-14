@@ -49,7 +49,7 @@ public class KochManagerDrawClient {
         buffered = true;
         binairy = true;
         this.application = application;
-        path = USERDIR + "\\";
+        path = "/home/jsf3/MountedDrive/";
     }
 
     public void drawEdges() {
@@ -62,13 +62,16 @@ public class KochManagerDrawClient {
         }
         draw.setEnd("KochFractal has been drawn");
 
-        application.setTextCalc(time);
+        tsDe.setEnd("Done drawing");
+        addTimeStamp(tsDe.toString());
+
+        application.setTextCalc(tsDe.toString());
         application.setTextDraw(draw.toString());
         application.setTextNrEdges(Integer.toString(edges.size()));
     }
 
     public void changeLevel(int nxt, boolean buffered, boolean binairy) {
-        TimeStamp tsDe = new TimeStamp();
+        tsDe = new TimeStamp();
         tsDe.setBegin("Begin Level<" + nxt + ">");
         time = "";
         this.buffered = buffered;
@@ -76,25 +79,19 @@ public class KochManagerDrawClient {
         edges.clear();
         currentLevel = nxt;
 
-        if(buffered){
-            if(binairy){
+        if (buffered) {
+            if (binairy) {
                 edges = readEdgesBuffered(nxt);
-            }else{
+            } else {
                 edges = readEdgesTextBuffered(nxt);
             }
-        }else{
-            if(binairy){
-                edges = readEdges(nxt);
-            }else{
-                edges = readEdgesText(nxt);
-            }
+        } else if (binairy) {
+            edges = readEdges(nxt);
+        } else {
+            edges = readEdgesText(nxt);
         }
-        
-        application.requestDrawEdges();
-        
-        tsDe.setEnd("Submitted thread pools");
 
-        addTimeStamp(tsDe.toString());
+        application.requestDrawEdges();
     }
 
     public synchronized List<Edge> readEdges(int lvl) {
@@ -159,8 +156,10 @@ public class KochManagerDrawClient {
                 float X2 = Float.parseFloat(velden[1]);
                 float Y1 = Float.parseFloat(velden[2]);
                 float Y2 = Float.parseFloat(velden[3]);
-                String color = velden[4];
-                readedEdges.add(new Edge(X1, Y1, X2, Y2, color));
+                float hue = Float.parseFloat(velden[4]);
+                float saturation = Float.parseFloat(velden[5]);
+                float brightness = Float.parseFloat(velden[6]);
+                readedEdges.add(new Edge(X1, Y1, X2, Y2, hue, saturation, brightness));
             }
             fr.close();
             inputScanner.close();
@@ -193,8 +192,10 @@ public class KochManagerDrawClient {
                 float X2 = Float.parseFloat(velden[1]);
                 float Y1 = Float.parseFloat(velden[2]);
                 float Y2 = Float.parseFloat(velden[3]);
-                String color = velden[4];
-                readedEdges.add(new Edge(X1, Y1, X2, Y2, color));
+                float hue = Float.parseFloat(velden[4]);
+                float saturation = Float.parseFloat(velden[5]);
+                float brightness = Float.parseFloat(velden[6]);
+                readedEdges.add(new Edge(X1, Y1, X2, Y2, hue, saturation, brightness));
             }
             fr.close();
             br.close();
