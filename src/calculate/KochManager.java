@@ -213,7 +213,7 @@ public class KochManager {
             String readedLine; //De huidige lijn.
             while (inputScanner.hasNextLine()) { //Leest het bestand uit tot dat er geen lijnen meer zijn.
                 readedLine = inputScanner.nextLine();
-                System.out.println(readedLine); //Print de huidige lijn.
+                //System.out.println(readedLine); //Print de huidige lijn.
                 lines.add(readedLine); //Voegt de huidige lijn toe aan de lijst met lijnen.
             }
 
@@ -249,7 +249,7 @@ public class KochManager {
             List<String> lines = new ArrayList<>(); //Een lijst met het aantal lijnen uit het tekstbestand.
             String readedLine; //De huidige lijn.
             while ((readedLine = br.readLine()) != null) { //Leest het bestand uit tot dat er geen lijnen meer zijn.
-                System.out.println(readedLine); //Print de huidige lijn.
+                //System.out.println(readedLine); //Print de huidige lijn.
                 lines.add(readedLine); //Voegt de huidige lijn toe aan de lijst met lijnen.
             }
 
